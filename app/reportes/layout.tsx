@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase-server"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import Footer from "@/components/footer"
 
 export default async function ReportesLayout({
   children,
@@ -87,6 +88,7 @@ export default async function ReportesLayout({
     <div className="flex flex-col min-h-screen">
       <Navbar userName={userData.nombre} userRole={userData.rol} />
       <main className="flex-1 bg-gray-50">{children}</main>
+      <Footer />
     </div>
   )
 }

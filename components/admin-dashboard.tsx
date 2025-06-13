@@ -17,7 +17,8 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ user }: AdminDashboardProps) {
   return (
-    <div className="container mx-auto py-8 px-4">
+    // flex flex - col items - center justify - center h - [80vh]
+    <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center h-[80vh]">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Panel de Administración</h1>
         <p className="text-muted-foreground">

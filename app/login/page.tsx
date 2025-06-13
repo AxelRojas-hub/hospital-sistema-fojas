@@ -86,7 +86,7 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">Sistema de gestión hospitalaria</p>
+          <p className="text-sm text-muted-foreground">Sistema de gestión de fojas</p>
         </CardFooter>
       </Card>
     </div>

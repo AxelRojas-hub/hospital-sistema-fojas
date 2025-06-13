@@ -7,8 +7,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Hospital Regional - Sistema de Gestión",
-  description: "Sistema de gestión hospitalaria para el Hospital Regional",
-    generator: 'v0.dev'
+  description: "Sistema de gestión de fojas para el Hospital Regional",
 }
 
 export default function RootLayout({

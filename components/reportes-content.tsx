@@ -100,35 +100,32 @@ export default function ReportesContent({ user, stats }: ReportesContentProps) {
                     Bajo ({stats.riesgoBajo})
                   </span>
                 </div>
+
                 <div className="flex items-center">
-                  <div className="w-full bg-gray-200 rounded-full h-4\">
-                    <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-4">
-                        <div
-                          className="bg-yellow-500 h-4 rounded-full"
-                          style={{
-                            width: `${stats.totalFojas ? (stats.riesgoMediano / stats.totalFojas) * 100 : 0}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="ml-2 text-sm font-medium">
-                        Mediano ({stats.riesgoMediano})
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-4">
-                        <div
-                          className="bg-red-500 h-4 rounded-full"
-                          style={{
-                            width: `${stats.totalFojas ? (stats.riesgoAlto / stats.totalFojas) * 100 : 0}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="ml-2 text-sm font-medium">
-                        Alto ({stats.riesgoAlto})
-                      </span>
-                    </div>
+                  <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div
+                      className="bg-yellow-500 h-4 rounded-full"
+                      style={{
+                        width: `${stats.totalFojas ? (stats.riesgoMediano / stats.totalFojas) * 100 : 0}%`
+                      }}
+                    ></div>
                   </div>
+                  <span className="ml-2 text-sm font-medium">
+                    Mediano ({stats.riesgoMediano})
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div
+                      className="bg-red-500 h-4 rounded-full"
+                      style={{
+                        width: `${stats.totalFojas ? (stats.riesgoAlto / stats.totalFojas) * 100 : 0}%`
+                      }}
+                    ></div>
+                  </div>
+                  <span className="ml-2 text-sm font-medium">
+                    Alto ({stats.riesgoAlto})
+                  </span>
                 </div>
               </div>
             </div>

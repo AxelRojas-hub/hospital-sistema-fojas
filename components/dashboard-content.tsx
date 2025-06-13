@@ -30,7 +30,8 @@ export default function DashboardContent({ user }: DashboardContentProps) {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    // flex flex - col items - center justify - center h - [80vh] 
+    <div className="container mx-auto flex flex-col items-center justify-center h-[80vh] py-8 px-4">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Bienvenido/a, {user.nombre}</h1>
         <p className="text-muted-foreground">
