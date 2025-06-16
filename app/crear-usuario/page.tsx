@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { Empleado } from "@/classes/Empleado"
 
 export default function CrearUsuarioPage() {
   const [email, setEmail] = useState("")
@@ -38,7 +39,7 @@ export default function CrearUsuarioPage() {
     }
 
     try {
-      // 1. Crear el usuario en Supabase Auth sin verificación de correo
+      // 1. Crear el usuario en supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -63,17 +64,35 @@ export default function CrearUsuarioPage() {
         password,
       })
 
-      // Guardar el ID del usuario para mostrarlo
       setUserId(authData.user.id)
 
-      // 2. Insertar el usuario en la tabla usuarios
-      const { error: dbError } = await supabase.from("usuarios").insert([
-        {
+      // Crea instancia de Medico
+      let usuarioData: any = {
+        id: authData.user.id,
+        email,
+        nombre, // nombre completo
+        rol,
+      }
+      if (rol === "Medico" || rol === "MedicoJefe" || rol === "Enfermero") {
+        const medico = Empleado.fromUser({
           id: authData.user.id,
-          email,
+          rol: rol as "MedicoJefe" | "Medico" | "Enfermero",
           nombre,
-          rol,
-        },
+          email,
+        })
+        usuarioData = {
+          id: authData.user.id,
+          email: medico.email,
+          nombre: medico.nombreCompleto(),
+          rol: medico.rol,
+          habilitado: medico.habilitado,
+          // apellido y dni eliminados
+        }
+      }
+
+      // Insertar el usuario en la tabla usuarios
+      const { error: dbError } = await supabase.from("usuarios").insert([
+        usuarioData,
       ])
 
       if (dbError) throw dbError

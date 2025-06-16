@@ -5,7 +5,6 @@ import EditarFojaForm from "@/components/editar-foja-form"
 export default async function EditarFojaPage({ params }: { params: { id: string } }) {
   const supabase = await createServerClient()
 
-  // Obtener la sesión y verificar autenticación
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -14,7 +13,6 @@ export default async function EditarFojaPage({ params }: { params: { id: string 
     redirect("/login")
   }
 
-  // Usar getUser para obtener datos autenticados del usuario
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -23,7 +21,6 @@ export default async function EditarFojaPage({ params }: { params: { id: string 
     redirect("/login")
   }
 
-  // Verificar si el usuario existe en la tabla usuarios
   const { data: userData, error: userError } = await supabase
     .from("usuarios")
     .select("*")

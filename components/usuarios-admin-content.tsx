@@ -6,12 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { UserPlus, Edit, UserCheck, UserX } from "lucide-react"
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
 import { createClientClient } from "@/lib/supabase-client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import EditarUsuarioModal from "@/components/editar-usuario-modal"
+import { Empleado } from "@/classes/Empleado"
 
 interface User {
   id: string
@@ -28,6 +27,10 @@ interface UsuariosAdminContentProps {
 }
 
 export default function UsuariosAdminContent({ currentUser, usuarios }: UsuariosAdminContentProps) {
+  // Convertir usuarios a instancias de Empleado
+  const empleados = usuarios.map((usuario) => Empleado.fromUser(usuario))
+  const currentEmpleado = Empleado.fromUser(currentUser)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
@@ -35,38 +38,40 @@ export default function UsuariosAdminContent({ currentUser, usuarios }: Usuarios
   const router = useRouter()
   const supabase = createClientClient()
 
-  const filteredUsuarios = usuarios.filter(
-    (usuario) =>
-      usuario.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      usuario.rol.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredEmpleados = empleados.filter(
+    (empleado) =>
+      empleado.nombreCompleto().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      empleado.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      empleado.rol.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const handleToggleHabilitado = async (userId: string, currentStatus: boolean) => {
+  const handleToggleHabilitado = async (empleado: Empleado) => {
     // No permitir deshabilitar al usuario actual
-    if (userId === currentUser.id) {
+    if (empleado.email === currentEmpleado.email) {
       alert("No puedes deshabilitar tu propia cuenta")
       return
     }
-
-    setLoading((prev) => ({ ...prev, [userId]: true }))
-
+    setLoading((prev) => ({ ...prev, [empleado.email]: true }))
     try {
-      const { error } = await supabase.from("usuarios").update({ habilitado: !currentStatus }).eq("id", userId)
-
+      const { error } = await supabase.from("usuarios").update({ habilitado: !empleado.habilitado }).eq("email", empleado.email)
       if (error) throw error
-
-      // Refrescar la página para mostrar los cambios
       router.refresh()
     } catch (error) {
       console.error("Error al actualizar el estado del usuario:", error)
     } finally {
-      setLoading((prev) => ({ ...prev, [userId]: false }))
+      setLoading((prev) => ({ ...prev, [empleado.email]: false }))
     }
   }
 
-  const handleOpenEditModal = (user: User) => {
-    setSelectedUser(user)
+  const handleOpenEditModal = (empleado: Empleado) => {
+    setSelectedUser({
+      id: '', // No disponible en Empleado
+      nombre: empleado.nombreCompleto(),
+      rol: empleado.rol as any,
+      email: empleado.email,
+      created_at: '', // No disponible en Empleado
+      habilitado: empleado.habilitado,
+    })
     setIsEditModalOpen(true)
   }
 
@@ -128,21 +133,19 @@ export default function UsuariosAdminContent({ currentUser, usuarios }: Usuarios
                   <TableHead>Nombre</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Rol</TableHead>
-                  <TableHead>Fecha Creación</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsuarios.length > 0 ? (
-                  filteredUsuarios.map((usuario) => (
-                    <TableRow key={usuario.id} className={!usuario.habilitado ? "bg-red-50" : ""}>
-                      <TableCell className="font-medium">{usuario.nombre}</TableCell>
-                      <TableCell>{usuario.email}</TableCell>
-                      <TableCell>{getRoleName(usuario.rol)}</TableCell>
-                      <TableCell>{format(new Date(usuario.created_at), "dd/MM/yyyy", { locale: es })}</TableCell>
+                {filteredEmpleados.length > 0 ? (
+                  filteredEmpleados.map((empleado) => (
+                    <TableRow key={empleado.email} className={!empleado.estaHabilitado() ? "bg-red-50" : ""}>
+                      <TableCell className="font-medium">{empleado.nombreCompleto()}</TableCell>
+                      <TableCell>{empleado.email}</TableCell>
+                      <TableCell>{getRoleName(empleado.rol)}</TableCell>
                       <TableCell>
-                        {usuario.habilitado ? (
+                        {empleado.estaHabilitado() ? (
                           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                             Habilitado
                           </Badge>
@@ -155,20 +158,19 @@ export default function UsuariosAdminContent({ currentUser, usuarios }: Usuarios
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleOpenEditModal(usuario)}
-                            disabled={loading[usuario.id]}
+                            onClick={() => handleOpenEditModal(empleado)}
+                            disabled={loading[empleado.email]}
                           >
                             <Edit className="h-4 w-4 mr-1" />
                             Editar
                           </Button>
-
                           <Button
-                            variant={usuario.habilitado ? "destructive" : "outline"}
+                            variant={empleado.estaHabilitado() ? "destructive" : "outline"}
                             size="sm"
-                            onClick={() => handleToggleHabilitado(usuario.id, usuario.habilitado)}
-                            disabled={loading[usuario.id] || usuario.id === currentUser.id}
+                            onClick={() => handleToggleHabilitado(empleado)}
+                            disabled={loading[empleado.email] || empleado.email === currentEmpleado.email}
                           >
-                            {usuario.habilitado ? (
+                            {empleado.estaHabilitado() ? (
                               <>
                                 <UserX className="h-4 w-4 mr-1" />
                                 Deshabilitar
@@ -186,7 +188,7 @@ export default function UsuariosAdminContent({ currentUser, usuarios }: Usuarios
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
+                    <TableCell colSpan={5} className="text-center py-4">
                       No se encontraron usuarios
                     </TableCell>
                   </TableRow>

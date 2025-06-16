@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertCircle, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Empleado } from "@/classes/Empleado"
 
 export default function CrearUsuarioAdmin() {
   const [email, setEmail] = useState("")
@@ -62,15 +63,24 @@ export default function CrearUsuarioAdmin() {
       // Guardar el ID del usuario para mostrarlo
       setUserId(authData.user.id)
 
-      // 2. Insertar el usuario en la tabla usuarios
+      // 2. Crear instancia de Medico para todos los roles
+      const medico = Empleado.fromUser({
+        id: authData.user.id,
+        rol: rol as "MedicoJefe" | "Medico" | "Enfermero" | "Administrador",
+        nombre,
+        email,
+      })
+      const usuarioData = {
+        id: authData.user.id,
+        email: medico.email,
+        nombre: medico.nombreCompleto(),
+        rol: medico.rol,
+        habilitado: medico.habilitado,
+      }
+
+      // 3. Insertar el usuario en la tabla usuarios
       const { error: dbError } = await supabase.from("usuarios").insert([
-        {
-          id: authData.user.id,
-          email,
-          nombre,
-          rol,
-          habilitado: true,
-        },
+        usuarioData,
       ])
 
       if (dbError) throw dbError

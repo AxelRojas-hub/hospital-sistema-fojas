@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase-server"
 import DashboardContent from "@/components/dashboard-content"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { Empleado } from "@/classes/Empleado"
 
 export default async function DashboardPage() {
   const supabase = await createServerClient()
@@ -16,7 +17,7 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  // Usar getUser para obtener datos autenticados del usuario
+  // para obtener datos autenticados del usuario
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  // Verificar si el usuario existe en la tabla usuarios
+  // checkea si el usuario existe en la tabla usuarios
   const { data: userData, error } = await supabase.from("usuarios").select("*").eq("id", user.id).maybeSingle()
 
   if (error) {
@@ -71,8 +72,17 @@ export default async function DashboardPage() {
     )
   }
 
+  // Instancia de la clase Medico
+  const medico = new Empleado({
+    habilitado: userData.habilitado,
+    rol: userData.rol,
+    nombre: userData.nombre, // nombre completo
+    email: userData.email,
+    dni: userData.dni ?? "",
+  })
+
   // Si el usuario está deshabilitado, redirigir al login con mensaje
-  if (userData.habilitado === false) {
+  if (!medico.estaHabilitado()) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <h1 className="text-2xl font-bold mb-4">Usuario deshabilitado</h1>
@@ -85,9 +95,14 @@ export default async function DashboardPage() {
   }
 
   // Si el usuario es administrador, redirigir al panel de administración
-  if (userData.rol === "Administrador") {
+  if (medico.esAdministrador()) {
     redirect("/admin")
   }
 
-  return <DashboardContent user={userData} />
+  return <DashboardContent user={{
+    id: user.id,
+    rol: medico.rol as "Medico Jefe" | "Medico" | "Enfermero",
+    nombre: medico.nombre,
+    email: medico.email,
+  }} />
 }

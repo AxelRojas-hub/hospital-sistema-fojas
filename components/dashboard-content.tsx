@@ -3,11 +3,12 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, FileText, BarChart3 } from "lucide-react"
+import { Empleado } from "@/classes/Empleado"
 
 interface User {
   id: string
   nombre: string
-  rol: "MedicoJefe" | "Medico" | "Enfermero"
+  rol: "Medico Jefe" | "Medico" | "Enfermero"
   email: string
 }
 
@@ -16,26 +17,20 @@ interface DashboardContentProps {
 }
 
 export default function DashboardContent({ user }: DashboardContentProps) {
-  const getRoleName = (rol: string) => {
-    switch (rol) {
-      case "MedicoJefe":
-        return "Médico Jefe"
-      case "Medico":
-        return "Médico"
-      case "Enfermero":
-        return "Enfermero/a"
-      default:
-        return rol
-    }
-  }
+  const medico = new Empleado({
+    habilitado: true,
+    rol: user.rol,
+    nombre: user.nombre, // nombre completo
+    email: user.email,
+    dni: "",
+  });
 
   return (
-    // flex flex - col items - center justify - center h - [80vh] 
     <div className="container mx-auto flex flex-col items-center justify-center h-[80vh] py-8 px-4">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Bienvenido/a, {user.nombre}</h1>
+        <h1 className="text-3xl font-bold mb-2">Bienvenido/a, {medico.nombre}</h1>
         <p className="text-muted-foreground">
-          Rol: <span className="font-medium">{getRoleName(user.rol)}</span>
+          Rol: <span className="font-medium">{medico.rol}</span>
         </p>
       </div>
 

@@ -14,7 +14,6 @@ export default async function CrearUsuarioAdminPage() {
     redirect("/login")
   }
 
-  // Usar getUser para obtener datos autenticados del usuario
   const {
     data: { user },
   } = await supabase.auth.getUser()

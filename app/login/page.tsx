@@ -34,7 +34,6 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        // Forzar una redirección completa en lugar de una navegación del lado del cliente
         window.location.href = "/dashboard"
       }
     } catch (err) {
