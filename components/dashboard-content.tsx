@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, FileText, BarChart3 } from "lucide-react"
-import { Empleado } from "@/classes/Empleado"
+import { Empleado } from "@/models/Empleado"
 
 interface User {
   id: string

@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { Empleado } from "@/classes/Empleado"
+import { Empleado } from "@/models/Empleado"
 
 export default function CrearUsuarioPage() {
   const [email, setEmail] = useState("")

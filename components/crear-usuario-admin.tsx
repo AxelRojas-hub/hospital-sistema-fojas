@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertCircle, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Empleado } from "@/classes/Empleado"
+import { Empleado } from "@/models/Empleado"
 
 export default function CrearUsuarioAdmin() {
   const [email, setEmail] = useState("")

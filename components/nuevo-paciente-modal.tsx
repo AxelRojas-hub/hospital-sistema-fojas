@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle } from "lucide-react"
-import { createClientClient } from "@/lib/supabase-client"
+import { ControllerPaciente } from "@/controllers/ControllerPaciente"
 import { useRouter } from "next/navigation"
 
 interface NuevoPacienteModalProps {
@@ -23,7 +23,6 @@ export default function NuevoPacienteModal({ isOpen, onClose }: NuevoPacienteMod
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const router = useRouter()
-  const supabase = createClientClient()
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -49,7 +48,7 @@ export default function NuevoPacienteModal({ isOpen, onClose }: NuevoPacienteMod
     setError(null)
     setSuccess(null)
 
-    // Validar campos requeridos
+    // Validar campos requeridos (opcional, ya lo hace el controller)
     if (!formData.nombre || !formData.num_historia_clinica) {
       setError("El nombre y número de historia clínica son obligatorios")
       setLoading(false)
@@ -57,37 +56,8 @@ export default function NuevoPacienteModal({ isOpen, onClose }: NuevoPacienteMod
     }
 
     try {
-      // Verificar si ya existe un paciente con el mismo número de historia clínica
-      const { data: existingPatient } = await supabase
-        .from("pacientes")
-        .select("id")
-        .eq("num_historia_clinica", formData.num_historia_clinica)
-        .maybeSingle()
-
-      if (existingPatient) {
-        setError("Ya existe un paciente con este número de historia clínica")
-        setLoading(false)
-        return
-      }
-
-      // Crear nuevo paciente
-      const { error } = await supabase.from("pacientes").insert([
-        {
-          nombre: formData.nombre,
-          num_historia_clinica: formData.num_historia_clinica,
-          dni: formData.dni || null,
-          fecha_nacimiento: formData.fecha_nacimiento || null,
-          genero: formData.genero || null,
-          direccion: formData.direccion || null,
-          telefono: formData.telefono || null,
-        },
-      ])
-
-      if (error) throw error
-
+      await ControllerPaciente.crearPaciente(formData)
       setSuccess("Paciente creado correctamente")
-
-      // Limpiar formulario
       setFormData({
         nombre: "",
         num_historia_clinica: "",
@@ -97,8 +67,6 @@ export default function NuevoPacienteModal({ isOpen, onClose }: NuevoPacienteMod
         direccion: "",
         telefono: "",
       })
-
-      // Refrescar la página después de un breve retraso
       setTimeout(() => {
         router.refresh()
         onClose()

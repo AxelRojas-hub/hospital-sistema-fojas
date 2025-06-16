@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase-server"
 import DashboardContent from "@/components/dashboard-content"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Empleado } from "@/classes/Empleado"
+import { Empleado } from "@/models/Empleado"
 
 export default async function DashboardPage() {
   const supabase = await createServerClient()

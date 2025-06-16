@@ -10,7 +10,7 @@ import { createClientClient } from "@/lib/supabase-client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import EditarUsuarioModal from "@/components/editar-usuario-modal"
-import { Empleado } from "@/classes/Empleado"
+import { Empleado } from "@/models/Empleado"
 
 interface User {
   id: string
