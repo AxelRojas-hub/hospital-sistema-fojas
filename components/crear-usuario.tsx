@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { crearUsuario } from "@/controllers/ControllerEmpleado"
 
 export default function CrearUsuarioPage() {
   const [email, setEmail] = useState("")
@@ -52,7 +53,6 @@ export default function CrearUsuarioPage() {
       })
 
       if (authError) throw authError
-
       if (!authData.user) {
         throw new Error("No se pudo crear el usuario")
       }
@@ -63,20 +63,15 @@ export default function CrearUsuarioPage() {
         password,
       })
 
-      // Guardar el ID del usuario para mostrarlo
       setUserId(authData.user.id)
 
-      // 2. Insertar el usuario en la tabla usuarios
-      const { error: dbError } = await supabase.from("usuarios").insert([
-        {
-          id: authData.user.id,
-          email,
-          nombre,
-          rol,
-          habilitado: true,
-        },
-      ])
-
+      // Usar el controller para insertar el usuario
+      const { error: dbError } = await crearUsuario({
+        id: authData.user.id,
+        email,
+        nombre,
+        rol: rol as "MedicoJefe" | "Medico" | "Enfermero" | "Administrador",
+      })
       if (dbError) throw dbError
 
       setSuccess(`Usuario ${nombre} creado exitosamente con el rol de ${rol}`)

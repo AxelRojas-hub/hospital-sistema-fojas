@@ -14,6 +14,7 @@ import { AlertCircle, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Empleado } from "@/models/Empleado"
+import { crearUsuario } from "@/controllers/ControllerEmpleado"
 
 export default function CrearUsuarioAdmin() {
   const [email, setEmail] = useState("")
@@ -60,29 +61,15 @@ export default function CrearUsuarioAdmin() {
         throw new Error("No se pudo crear el usuario")
       }
 
-      // Guardar el ID del usuario para mostrarlo
       setUserId(authData.user.id)
 
-      // 2. Crear instancia de Medico para todos los roles
-      const medico = Empleado.fromUser({
+      // Usar el controller para insertar el usuario
+      const { error: dbError } = await crearUsuario({
         id: authData.user.id,
-        rol: rol as "MedicoJefe" | "Medico" | "Enfermero" | "Administrador",
-        nombre,
         email,
+        nombre,
+        rol: rol as "MedicoJefe" | "Medico" | "Enfermero" | "Administrador",
       })
-      const usuarioData = {
-        id: authData.user.id,
-        email: medico.email,
-        nombre: medico.nombreCompleto(),
-        rol: medico.rol,
-        habilitado: medico.habilitado,
-      }
-
-      // 3. Insertar el usuario en la tabla usuarios
-      const { error: dbError } = await supabase.from("usuarios").insert([
-        usuarioData,
-      ])
-
       if (dbError) throw dbError
 
       setSuccess(`Usuario ${nombre} creado exitosamente con el rol de ${rol}`)

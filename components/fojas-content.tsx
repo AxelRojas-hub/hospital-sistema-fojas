@@ -11,6 +11,7 @@ import { es } from "date-fns/locale"
 import { Badge } from "@/components/ui/badge"
 import { createClientClient } from "@/lib/supabase-client"
 import { useRouter } from "next/navigation"
+import { ControllerFoja } from "@/controllers/ControllerFoja"
 
 interface User {
   id: string
@@ -52,11 +53,8 @@ export default function FojasContent({ user, fojas }: FojasContentProps) {
     setLoading((prev) => ({ ...prev, [fojaId]: true }))
 
     try {
-      const { error } = await supabase.from("fojas").update({ invalida: !currentStatus }).eq("id", fojaId)
-
+      const { error } = await ControllerFoja.toggleInvalida(fojaId, currentStatus)
       if (error) throw error
-
-      // Refrescar la página para mostrar los cambios
       router.refresh()
     } catch (error) {
       console.error("Error al actualizar el estado de la foja:", error)

@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { ControllerFoja } from "@/controllers/ControllerFoja"
 import { createClientClient } from "@/lib/supabase-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -107,59 +108,15 @@ export default function NuevaFojaForm({ user, medicos, pacientes }: NuevaFojaFor
     setLoading(true)
     setError(null)
 
-    try {
-      // Si no existe el paciente, crearlo primero
-      if (!pacienteExistente) {
-        const { error: pacienteError } = await supabase.from("pacientes").insert([
-          {
-            nombre: formData.nombre_paciente,
-            num_historia_clinica: formData.num_historia_clinica,
-            fecha_nacimiento: formData.fecha_nacimiento || null,
-            dni: formData.dni || null,
-          },
-        ])
-
-        if (pacienteError) {
-          throw new Error(`Error al crear el paciente: ${pacienteError.message}`)
-        }
-      }
-
-      // Crear la foja médica
-      const { error: fojaError } = await supabase.from("fojas").insert([
-        {
-          nombre_paciente: formData.nombre_paciente,
-          num_historia_clinica: formData.num_historia_clinica,
-          fecha: formData.fecha,
-          cirujano: formData.cirujano,
-          ayudante1: formData.ayudante1 || null,
-          ayudante2: formData.ayudante2 || null,
-          ayudante3: formData.ayudante3 || null,
-          anestesiologo: formData.anestesiologo || null,
-          anestesia: formData.anestesia,
-          instrumentador: formData.instrumentador || null,
-          riesgo_quirurgico: formData.riesgo_quirurgico,
-          diagnostico_preoperatorio: formData.diagnostico_preoperatorio,
-          plan_quirurgico: formData.plan_quirurgico,
-          diagnostico_postoperatorio: formData.diagnostico_postoperatorio,
-          operacion_realizada: formData.operacion_realizada,
-          anatomia_patologica: formData.anatomia_patologica || null,
-          descripcion_tecnica: formData.descripcion_tecnica,
-          medico_responsable: formData.medico_responsable,
-          medico_responsable_nombre: formData.medico_responsable_nombre,
-        },
-      ])
-
-      if (fojaError) {
-        throw fojaError
-      }
-
-      router.push("/fojas")
-      router.refresh()
-    } catch (err: any) {
-      setError(err.message || "Ocurrió un error al guardar la foja médica")
-    } finally {
+    const { error: errorFoja } = await ControllerFoja.crearFojaMedica(formData, pacientes)
+    if (errorFoja) {
+      setError(errorFoja)
       setLoading(false)
+      return
     }
+    router.push("/fojas")
+    router.refresh()
+    setLoading(false)
   }
 
   return (

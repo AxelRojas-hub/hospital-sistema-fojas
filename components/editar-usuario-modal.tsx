@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle } from "lucide-react"
 import { createClientClient } from "@/lib/supabase-client"
 import { useRouter } from "next/navigation"
+import { actualizarUsuario, cambiarPassword } from "@/controllers/ControllerEmpleado"
 
 interface Usuario {
   id: string
@@ -65,24 +66,21 @@ export default function EditarUsuarioModal({ isOpen, onClose, usuario, currentUs
     setSuccess(null)
 
     try {
-      // Actualizar datos del usuario en la tabla usuarios
-      const { error: dbError } = await supabase
-        .from("usuarios")
-        .update({
-          nombre: formData.nombre,
-          rol: formData.rol,
-        })
-        .eq("id", usuario.id)
-
+      // Actualizar datos del usuario en la tabla usuarios usando el controller
+      const { error: dbError } = await actualizarUsuario({
+        id: usuario.id,
+        nombre: formData.nombre,
+        rol: formData.rol as "MedicoJefe" | "Medico" | "Enfermero" | "Administrador",
+      })
       if (dbError) throw dbError
 
       // Si se está cambiando la contraseña
       if (showPasswordReset && formData.newPassword) {
         // Solo los administradores pueden cambiar contraseñas
-        const { error: authError } = await supabase.auth.admin.updateUserById(usuario.id, {
-          password: formData.newPassword,
+        const { error: authError } = await cambiarPassword({
+          id: usuario.id,
+          newPassword: formData.newPassword,
         })
-
         if (authError) throw authError
       }
 

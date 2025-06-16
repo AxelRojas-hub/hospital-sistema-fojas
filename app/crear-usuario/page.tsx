@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { Empleado } from "@/models/Empleado"
+import { crearUsuario } from "@/controllers/ControllerEmpleado"
 
 export default function CrearUsuarioPage() {
   const [email, setEmail] = useState("")
@@ -53,7 +54,6 @@ export default function CrearUsuarioPage() {
       })
 
       if (authError) throw authError
-
       if (!authData.user) {
         throw new Error("No se pudo crear el usuario")
       }
@@ -66,36 +66,19 @@ export default function CrearUsuarioPage() {
 
       setUserId(authData.user.id)
 
-      // Crea instancia de Medico
-      let usuarioData: any = {
-        id: authData.user.id,
-        email,
-        nombre, // nombre completo
-        rol,
-      }
+      // Abstraído: creación e inserción de médico
       if (rol === "Medico" || rol === "MedicoJefe" || rol === "Enfermero") {
-        const medico = Empleado.fromUser({
+        const { error: dbError } = await crearUsuario({
           id: authData.user.id,
-          rol: rol as "MedicoJefe" | "Medico" | "Enfermero",
-          nombre,
           email,
+          nombre,
+          rol: rol as "MedicoJefe" | "Medico" | "Enfermero",
         })
-        usuarioData = {
-          id: authData.user.id,
-          email: medico.email,
-          nombre: medico.nombreCompleto(),
-          rol: medico.rol,
-          habilitado: medico.habilitado,
-          // apellido y dni eliminados
-        }
+        if (dbError) throw dbError
+      } else {
+        // Si se agregan otros roles, aquí se puede manejar la inserción
+        throw new Error("Rol no soportado")
       }
-
-      // Insertar el usuario en la tabla usuarios
-      const { error: dbError } = await supabase.from("usuarios").insert([
-        usuarioData,
-      ])
-
-      if (dbError) throw dbError
 
       setSuccess(`Usuario ${nombre} creado exitosamente con el rol de ${rol}`)
       setEmail("")
