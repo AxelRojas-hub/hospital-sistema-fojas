@@ -131,10 +131,8 @@ export default function CrearUsuarioAdmin() {
                   {success}
                   {userId && (
                     <div className="mt-2 text-xs">
-                      <p>ID del usuario: {userId}</p>
                       <p className="mt-1">
-                        Guarda este ID para referencia futura. Lo necesitarás si tienes que solucionar problemas con
-                        este usuario.
+                        Usuario creado exitosamente.
                       </p>
                     </div>
                   )}

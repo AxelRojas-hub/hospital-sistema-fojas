@@ -45,4 +45,39 @@ export class ControllerPaciente {
 
         return true
     }
+
+    static async actualizarPaciente(id: string, formData: {
+        nombre: string
+        num_historia_clinica: string
+        dni?: string
+        fecha_nacimiento?: string
+        genero?: string
+        direccion?: string
+        telefono?: string
+    }) {
+        const supabase = createClientClient()
+
+        // Validar campos requeridos
+        if (!formData.nombre || !formData.num_historia_clinica) {
+            throw new Error("El nombre y número de historia clínica son obligatorios")
+        }
+
+        // Actualizar paciente
+        const { error } = await supabase
+            .from("pacientes")
+            .update({
+                nombre: formData.nombre,
+                num_historia_clinica: formData.num_historia_clinica,
+                dni: formData.dni || null,
+                fecha_nacimiento: formData.fecha_nacimiento || null,
+                genero: formData.genero || null,
+                direccion: formData.direccion || null,
+                telefono: formData.telefono || null,
+            })
+            .eq("id", id)
+
+        if (error) throw error
+
+        return true
+    }
 }

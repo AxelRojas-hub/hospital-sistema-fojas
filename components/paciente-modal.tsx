@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle } from "lucide-react"
 import { createClientClient } from "@/lib/supabase-client"
 import { useRouter } from "next/navigation"
+import { ControllerPaciente } from "@/controllers/ControllerPaciente"
 
 interface Paciente {
   id: string
@@ -39,7 +40,6 @@ export default function PacienteModal({ isOpen, onClose, paciente, canEdit }: Pa
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const router = useRouter()
-  const supabase = createClientClient()
 
   const [formData, setFormData] = useState({
     nombre: paciente.nombre,
@@ -87,21 +87,7 @@ export default function PacienteModal({ isOpen, onClose, paciente, canEdit }: Pa
     setSuccess(null)
 
     try {
-      const { error } = await supabase
-        .from("pacientes")
-        .update({
-          nombre: formData.nombre,
-          num_historia_clinica: formData.num_historia_clinica,
-          dni: formData.dni || null,
-          fecha_nacimiento: formData.fecha_nacimiento || null,
-          genero: formData.genero || null,
-          direccion: formData.direccion || null,
-          telefono: formData.telefono || null,
-        })
-        .eq("id", paciente.id)
-
-      if (error) throw error
-
+      await ControllerPaciente.actualizarPaciente(paciente.id, formData)
       setSuccess("Datos del paciente actualizados correctamente")
       setIsEditing(false)
       router.refresh()
