@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Hospital Regional - Sistema de Gestión",
   description: "Sistema de gestión de fojas para el Hospital Regional",
+  icons: {
+    icon: "/favico.svg",
+  }
 }
 
 export default function RootLayout({
